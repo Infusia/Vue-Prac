@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <style>
+    .green {
+      background-color: green;
+    }
+
+    .red {
+      background-color: red;
+    }
+
+    .bruh {
+      justify-content: center;
+      align-items: center;
+    }
+
+    .buttonFilters {
+      background-color: #46E8D2;
+      color: white;
+    }
+  </style>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <!-- <script src="https://unpkg.com/vue"></script> -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+    crossorigin="anonymous"></script>
+  <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+  <script src="https://unpkg.com/vue@next"></script>
+  <!-- <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.js"></script> -->
+</head>
+
+<body style="background-color:aquamarine;">
+
+  <div id="app">
+    <div class="container">
+      <div class="row" style="text-align: center; padding-bottom: 30px;">
+        <div>
+          <!-- SEARCH BAR IS HERE -->
+          <label for="searchBox">SEARCH</label>
+          <input type="text" id="search" v-model="search" placeholder="CASE SENSITIVE">
+        </div>
+      </div>
+      <!-- BUTTONS ARE HERE -->
+      <div class="row" style="text-align: center;padding-bottom: 30px; ">
+        <div class="col">
+          <button class="buttonFilters" @click="sort('subject')">Filter By Subject</button>
+        </div>
+        <div class="col">
+          <button class="buttonFilters" @click="sort('mark')"> Filter By Grade</button>
+        </div>
+        <div class="col">
+          <button style="color: white;" v-bind:class="isActiveHonors ? 'green' : 'red'" @click="toggleHonors"> Filter By
+            Honors</button>
+        </div>
+        <div class="col">
+          <button style="color: white;" v-bind:class="isActiveFailer ? 'green' : 'red'" @click="toggleFail"> Filter By
+            Fail</button>
+        </div>
+
+      </div>
+      <div class="row" style="text-align: center;">
+        <ul class="list-group ">
+          <li style="font-size: x-large;" class="list-group-item list-group-item-primary" is="grade-item" v-for="(item, index) in showGrades"
+            v-bind:key="item.id" v-bind:subject="item.subject" v-bind:mark="item.mark"
+            v-on:remove="grades.splice(index, 1)"> <b>Subject Name:</b> {{item.subject}} <b>Mark:</b> {{item.mark}} 
+            <button class="red" @click="removeItem(index)">Remove</button> </li>
+            <!-- <button data-bs-target="#exampleModal"data-bs-toggle="modal" @click="editItem(index)">Edit</button> -->
+          <!-- <li v-for="grading in filterGrades" v-text="grading.subject"></li> -->
+        </ul>
+        <!-- Button trigger modal -->
+        <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#exampleModal">
+          Add a Grade
+        </button>
+      </div>
+
+    </div>
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header " style="background-color: #9DC6D8;">
+            <h5 class="modal-title" id="exampleModalLabel" style="color: white;">Add A Grade To The List</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body" style="background-color:#9DC6D8; ">
+            <form v-on:submit.prevent="addGrade">
+              <label style="color: white;" for="subject">Class Subject</label>
+              <input v-model="subjectText" placeholder="E.g. Math" required />
+              <label style="color: white;" for="grade">Mark in Class</label>
+              <input type="number" min="0" max="100" v-model="gradeText" placeholder="E.g. 55" required />
+              <input class="buttonFilters" type="submit" value="Add Grade"></input>
+            </form>
+          </div>
+          <div class="modal-footer" style="background-color:#9DC6D8;">
+            <button type="button" class="btn btn-info" data-bs-dismiss="modal">Close</button>
+            <!-- <button type="button" @click="addGrade" class="btn btn-primary" data-bs-dismiss="modal">Add Grade</button> -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const izaiah5 = {
+      data() {
+        return {
+          subjectText: '',
+          gradeText: '',
+          grades: [],
+          nextGradeId: 0,
+          search: '',
+          sortBy: 'subject',
+          sortDirection: 'asc',
+          honors: false,
+          fail: false,
+          isActiveHonors: false,
+          isActiveFailer: false
+        }
+      },
+      methods: {
+        addGrade() {
+          console.log("THIS IS THE ADD METHOD BEING CALLED");
+          var itsIn = true;
+          for (var x of this.grades) {
+            if (x.subject == this.subjectText) {
+              itsIn = false;
+              alert("SUBJECT ALREADY EXISTS TRY AGAIN");
+
+              console.log(this.grades);
+            }
+          }
+          if (this.gradeText < 0 || this.gradeText > 100) {
+            alert("PLEASE ENTER A VALID GRADE BETWEEN 0 AND 100");
+          } else {
+
+            if (itsIn) {
+              this.grades.push({
+                subject: this.subjectText,
+                mark: this.gradeText,
+                id: this.nextGradeId++
+
+                //check if here with grade text and check array for arleady contained subject name
+
+              });
+            }
+            console.log(this.subjectText);
+            console.log(this.gradeText);
+            console.log(this.nextGradeId);
+          }
+          this.subjectText = ''
+          this.gradeText = ''
+
+        },
+        removeItem(index) {
+          this.grades.splice(index, 1);
+        },
+
+        toggleHonors() {
+          this.honors = !this.honors;
+          this.isActiveHonors = !this.isActiveHonors;
+          console.log(this.honors);
+          console.log("TOGGLE HONORS CLICKED");
+        },
+        toggleFail() {
+          this.fail = !this.fail;
+          this.isActiveFailer = !this.isActiveFailer;
+        },
+        sort: function (s) {
+          if (s === this.sortBy) {
+            this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+          }
+          this.sortBy = s;
+        }
+      },
+      computed: {
+        showGrades: function () {
+          let gradeShow = this.grades;
+          if (this.search !== '') {
+            gradeShow = gradeShow.filter((grading) => {
+              return grading.subject.match(this.search);
+            });
+          }
+          gradeShow = gradeShow.sort((p1, p2) => {
+            console.log(p1);
+            console.log(p2);
+            let modifier = 1;
+            if (this.sortDirection === 'desc') modifier = -1;
+            if (p1[this.sortBy] < p2[this.sortBy]) return -1 * modifier; if (p1[this.sortBy] > p2[this.sortBy]) return 1 * modifier;
+            return 0;
+          });
+
+          if (this.honors) {
+
+            gradeShow = gradeShow.filter(g => g.mark >= 80)
+          }
+
+          if (this.fail) {
+
+            gradeShow = gradeShow.filter(g => g.mark < 50)
+          }
+
+
+          return gradeShow;
+        },
+      },
+    }
+    //COMPUTED PROPERTIERS FLITERING ALL HERE
+
+
+    Vue.createApp(izaiah5).mount("#app")
+  </script>
+</body>
+
+
+
+</html>
